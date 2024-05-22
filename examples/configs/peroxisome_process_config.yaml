@@ -1,0 +1,49 @@
+task:
+  task_name: "20240503_zone_2_nuc"
+  tmpdir: "/nrs/cellmap/zouinkhim/tmp_daisy_2/"
+  num_cpus: 1
+  num_workers: 40  
+
+data:
+  input_container: '/nrs/cellmap/zouinkhim/predictions/jrc_mus-liver-zon-2/jrc_mus-liver-zon-2.zarr'
+  in_dataset: 'peroxisome/peroxisome'
+  output_container: '/nrs/cellmap/zouinkhim/predictions/jrc_mus-liver-zon-2/jrc_mus-liver-zon-2_postprocessed.zarr'
+  output_group: '20240503_peroxi/peroxi_step_2_crop/'
+  roi: "[320000:330000,100000:110000,10000:20000]"
+  context: 1
+
+masks:
+  mito:
+    container: "/nrs/cellmap/data/jrc_mus-liver-zon-1/jrc_mus-liver-zon-1.n5"
+    dataset: "em/fibsem-uint8/s1"
+    threshold: forground
+    dilate: 2
+    # erode: 2
+    resize: True
+
+process:
+  step_1:
+    params:
+      type: segmentation
+      save_edges: True
+    steps:
+      instances:
+        gaussian: 2
+        threshold: 0.5
+
+
+    # gaussian: 2
+    # threshold: 0.5
+
+    
+  # merge_blocks: {}
+  # step_2:
+  #   mask_filter:
+  #     mask: mito
+  #   expend_to_threshold: 0.5
+  # step_3:
+  #   size_filter:
+  #     min_size: 1000
+  #     max_size: 1000000
+  #     resolution: 8
+  # relabel: {}

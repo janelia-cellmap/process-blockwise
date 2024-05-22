@@ -1,0 +1,11 @@
+output_folder : /nrs/cellmap/zouinkhim/predictions/vhack/
+input : "/nrs/cellmap/data/jrc_mus-liver-zon-1/jrc_mus-liver-zon-1.n5"
+in_dataset: "em/fibsem-uint8/s1"
+roi: "[320000:330000,100000:110000,10000:20000]"
+workers: 4
+
+runs :
+  _vhack_peroxisome__finetuned_distances_8nm_peroxisome_jrc_mus-liver-zones_peroxisome_8nm_upsample-unet_default_one_label_2:
+    output:  "0:proxisome"
+    checkpoint: "315000"
+
