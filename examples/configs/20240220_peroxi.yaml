@@ -1,11 +1,21 @@
-output_folder : /nrs/cellmap/zouinkhim/predictions/vhack/
-input : "/nrs/cellmap/data/jrc_mus-liver-zon-1/jrc_mus-liver-zon-1.n5"
-in_dataset: "em/fibsem-uint8/s1"
-roi: "[320000:330000,100000:110000,10000:20000]"
-workers: 4
+runs_path: "/nrs/cellmap/zouinkhim/crop_num_experiment_v2/"
+
+output_folder : /nrs/cellmap/zouinkhim/predictions/zone_2/
+input : "/nrs/cellmap/data/jrc_mus-liver-zon-2/jrc_mus-liver-zon-2.n5"
+in_dataset: "em/fibsem-uint8/s0"
+roi: "[320000:325000,100000:105000,10000:15000]"
+workers: 2
 
 runs :
-  _vhack_peroxisome__finetuned_distances_8nm_peroxisome_jrc_mus-liver-zones_peroxisome_8nm_upsample-unet_default_one_label_2:
-    output:  "0:proxisome"
-    checkpoint: "315000"
-
+  20240326_many_funetuning_using_pattonw_1e4_finetuned_distances_4nm_many_jrc_mus-livers_many_4nm_many_upsample-unet_default_0:
+    output:  "0:ecs,1:plasma_membrane,2:mito,3:mito_membrane,4:vesicle,5:vesicle_membrane,6:mvb,7:mvb_membrane,8:er,9:er_membrane,10:eres,11:nucleus,12:microtubules,13:microtubules_out"
+    checkpoint: "100000"
+  20240326_many_funetuning_using_pattonw_1e4_finetuned_distances_4nm_many_jrc_mus-livers_many_4nm_many_upsample-unet_default_1:
+    output:  "0:ecs,1:plasma_membrane,2:mito,3:mito_membrane,4:vesicle,5:vesicle_membrane,6:mvb,7:mvb_membrane,8:er,9:er_membrane,10:eres,11:nucleus,12:microtubules,13:microtubules_out"
+    checkpoint: "100000"
+  20240326_many_funetuning_using_pattonw_1e4_release_finetuned_distances_4nm_many_jrc_mus-livers_many_4nm_many_upsample-unet_default_0:
+    output:  "0:ecs,1:plasma_membrane,2:mito,3:mito_membrane,4:vesicle,5:vesicle_membrane,6:mvb,7:mvb_membrane,8:er,9:er_membrane,10:eres,11:nucleus,12:microtubules,13:microtubules_out"
+    checkpoint: "latest"
+  20240326_many_funetuning_using_pattonw_1e4_release_finetuned_distances_4nm_many_jrc_mus-livers_many_4nm_many_upsample-unet_default_1:
+    output:  "0:ecs,1:plasma_membrane,2:mito,3:mito_membrane,4:vesicle,5:vesicle_membrane,6:mvb,7:mvb_membrane,8:er,9:er_membrane,10:eres,11:nucleus,12:microtubules,13:microtubules_out"
+    checkpoint: "latest"
