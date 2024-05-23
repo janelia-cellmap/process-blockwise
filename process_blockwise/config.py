@@ -38,6 +38,9 @@ class Task:
         self.tmpdir = task_dict.get('tmpdir', None)
         if self.tmpdir is None:
             self.tmpdir = tempfile.mkdtemp()
+        else:
+            if not os.path.exists(self.tmpdir):
+                os.makedirs(self.tmpdir)
         self.num_cpus = task_dict.get('num_cpus', 1)
         self.num_workers = task_dict.get('num_workers', 20)
 

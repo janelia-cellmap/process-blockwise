@@ -2,7 +2,8 @@ task:
   task_name: "20240503_zone_2_nuc"
   tmpdir: "/nrs/cellmap/zouinkhim/tmp_daisy_2/"
   num_cpus: 1
-  num_workers: 40  
+  num_workers: 40
+  billing: "cellmap"  
 
 data:
   input_container: '/nrs/cellmap/zouinkhim/predictions/jrc_mus-liver-zon-2/jrc_mus-liver-zon-2.zarr'
@@ -30,6 +31,9 @@ process:
       instances:
         gaussian: 2
         threshold: 0.5
+  step_2:
+    params:
+      type: relabel
 
 
     # gaussian: 2
