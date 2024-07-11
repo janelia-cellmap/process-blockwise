@@ -25,7 +25,7 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-        "dacapo-ml",
+        # "dacapo-ml",
         ]
 
 # extras
@@ -66,7 +66,7 @@ allow-direct-references = true
 packages = ["process_blockwise"]
 
 [project.scripts]
-dacapo = "dacapo.cli:cli"
+process_blockwise = "process_blockwise.segment_blockwise:main"
 
 # https://github.com/charliermarsh/ruff
 [tool.ruff]
@@ -174,3 +174,4 @@ ignore = [
     ".ruff_cache/**/*",
     "tests/**/*",
 ]
+

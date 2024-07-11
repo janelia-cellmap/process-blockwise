@@ -7,14 +7,18 @@ import numpy as np
 import tempfile
 from funlib.persistence import prepare_ds
 from funlib.persistence import Array, open_ds
-from config import *
+from .config import *
 from scipy.cluster.hierarchy import DisjointSet
 from tqdm import tqdm
 import pickle
 from glob import glob
-
+import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from collections import Counter
+
+import logging
+
+logger = logging.getLogger(__file__)
 
 def load_and_deserialize(npy_file):
     loaded_serialized_dict = np.load(npy_file, allow_pickle=True)
@@ -50,10 +54,13 @@ def read_cross_block_merges(tmpdir):
 
         for future in tqdm(futures, total=len(futures)):
             nodes, edges = future.result()
-            nodes_list.append(nodes)
-            edges_list.append(edges)
+            if len(nodes) > 0:
+                nodes_list.append(nodes)
+            if len(edges) > 0:
+                edges_list.append(edges)
 
     return np.concatenate(nodes_list), np.concatenate(edges_list)
+    # return nodes_list, edges_list
 
 
 import networkx as nx
@@ -109,7 +116,7 @@ def segment_blockwise(config_yaml):
     block_size = np.array(array_in.data.chunks) * np.array(voxel_size)
     write_size = daisy.Coordinate(block_size)
 
-    write_roi = daisy.Roi((0,) * len(write_size), write_size)
+    write_roi = daisy.Roi((0,) * len(write_size), write_size*2)
 
     read_roi = write_roi.grow(context, context)
     
@@ -118,7 +125,15 @@ def segment_blockwise(config_yaml):
     task = config.task
 
     task_name = task.task_name
-    tmpdir = task.tmpdir
+    tmpdir = os.path.join(task.tmpdir, task_name)
+
+    if task.empty_tmpdir:
+        if os.path.exists(tmpdir):
+            logger.error(f"Removing tmpdir: {tmpdir}")
+            import shutil
+            shutil.rmtree(tmpdir)
+    if not os.path.exists(tmpdir):
+        os.makedirs(tmpdir)
 
     num_cpus = task.num_cpus
     num_workers = task.num_workers
@@ -128,6 +143,13 @@ def segment_blockwise(config_yaml):
         print(f"Running step: {current_step}")
 
         out_dataset = os.path.join(config.data.output_group, current_step)
+
+        overwrite = step_dict.get('override', False)
+
+        if overwrite:
+            logger.error(f"Overwriting dataset: {out_dataset}")
+            import shutil
+            shutil.rmtree(os.path.join(output_file, out_dataset))
 
 
         array_out = prepare_ds(
@@ -177,7 +199,7 @@ def segment_blockwise(config_yaml):
             )
 
         task = daisy.Task(
-            f"segment_{task_name}",
+            f"segment_{current_step}_{task_name}",
             total_roi.grow(context, context),
             read_roi,
             write_roi,
@@ -187,7 +209,13 @@ def segment_blockwise(config_yaml):
             read_write_conflict=False,
             timeout=10,
         )
-        daisy.run_blockwise([task])
+        
+        skip = step_dict.get('skip', False)
+        print(f"Skip: {skip}")
+        print(f"step_dict: {step_dict}")
+        
+        if not skip:
+            daisy.run_blockwise([task])
 
 
         print("Finished segmentation. Relabeling...")
@@ -203,8 +231,15 @@ def segment_blockwise(config_yaml):
     
     # wandb.finish()
 
+def main():
+    parser = argparse.ArgumentParser(description="Process blockwise with a given path.")
+    parser.add_argument('path', type=str, help='The path to process blockwise')
+    args = parser.parse_args()
+    
+    config_yaml = args.path
+    segment_blockwise(config_yaml)
+
+
 
 if __name__ == "__main__":
-    args = sys.argv[1:]
-    config_yaml = args[1]
-    segment_blockwise(config_yaml)
+    main()

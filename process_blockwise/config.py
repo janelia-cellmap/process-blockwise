@@ -36,6 +36,7 @@ class Task:
         if self.task_name is None:
             self.task_name = f"{datetime.now().strftime('%Y%m%d')}_{uuid.uuid4()}"
         self.tmpdir = task_dict.get('tmpdir', None)
+        self.empty_tmpdir = task_dict.get('empty_tmpdir', False)
         if self.tmpdir is None:
             self.tmpdir = tempfile.mkdtemp()
         else:
@@ -67,6 +68,7 @@ class ProcessStep:
     def __init__(self, step_dict):
         self.params = step_dict.get('params', {})
         self.steps = step_dict.get('steps', {})
+        self.skip = step_dict.get('skip', False)
 
     def run(self):
         print(f"Running step with params: {self.params}")
@@ -137,3 +139,23 @@ class Config:
                 else:
                     raise ConfigError(f"Unknown process step: {step_name}")
         return steps
+
+    def get_input_for_step(self, step):
+
+        # if it is the first step, the input is the original dataset
+        # else return the output of the previous step
+        steps = self.get_process_config()
+        step_before = None
+        for i, current_step in enumerate(steps):
+            if current_step == step:
+                break
+            step_before = current_step
+
+        if i == 0:
+            input_file = self.data.input_container
+            dataset = self.data.in_dataset
+        else:
+            input_file = self.data.output_container
+            dataset = os.path.join(self.data.output_group, step_before)
+
+        return input_file, dataset

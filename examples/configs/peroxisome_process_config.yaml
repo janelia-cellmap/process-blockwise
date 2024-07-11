@@ -2,7 +2,7 @@ task:
   task_name: "20240503_zone_2_nuc"
   tmpdir: "/nrs/cellmap/zouinkhim/tmp_daisy_2/"
   num_cpus: 1
-  num_workers: 40
+  num_workers: 2000
   billing: "cellmap"  
 
 data:
@@ -34,6 +34,13 @@ process:
   step_2:
     params:
       type: relabel
+  step_3:
+    params:
+      type: segmentation
+    steps:
+      mask_filter:
+        mask: mito
+      expend_to_threshold: 0.5
 
 
     # gaussian: 2

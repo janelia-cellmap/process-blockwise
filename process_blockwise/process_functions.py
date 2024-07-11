@@ -33,6 +33,7 @@ def instances(input_data,  threshold, gaussian_kernel=None):
 process_functions = {
     'gaussian': gaussian_blur,
     'threshold': threshold,
+    'instances': instances
     # 'merge_blocks': merge_blocks,
     # 'mask_filter': mask_filter,
     # 'size_filter': size_filter,
