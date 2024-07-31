@@ -1,0 +1,30 @@
+task:
+  task_name: "20240731_jrc-mus-liver-zon-2_ld"
+  tmpdir: "/nrs/cellmap/zouinkhim/tmp_daisy_2/"
+  num_cpus: 1
+  num_workers: 600
+  billing: "cellmap"
+  # empty_tmpdir: True
+
+data:
+  input_container: '/nrs/cellmap/zouinkhim/predictions/jrc_mus-liver-zon-2/jrc_mus-liver-zon-2_postprocessed.zarr'
+  in_dataset: '20240515_ld_v2/ld_step_4_v2_filtered_david_keys_masked_small_ids_ecs_nuc'
+
+  output_container: '/nrs/cellmap/zouinkhim/predictions/jrc_mus-liver-zon-2/jrc_mus-liver-zon-2_postprocessed.zarr'
+  output_group: '20240731_ld_relabels'
+  # roi: "[220000:300000,100000:160000,100000:120000]"
+  # context: 0
+
+process:
+  step_1:
+    save_result: False
+    # override: True
+    # skip: True
+    params:
+      type: segmentation
+      save_ids: True
+  step_2:
+    params:
+      type: relabel
+      use_ids: True
+      minimal_dtype: True
