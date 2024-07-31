@@ -11,6 +11,10 @@ logger = logging.getLogger(__file__)
 
 import numpy as np
 
+def load_ids(tmpdir):
+        a = np.load(os.path.join(tmpdir, "ids.npz"))
+        return a["old_ids"], a["new_ids"]
+
 def load_elements(tmpdir):
         a = np.load(os.path.join(tmpdir, "elements.npz"))
         return a["nodes"], a["edges"], a["components"]
@@ -29,6 +33,8 @@ def mask_value(array_out, value, block):
 
 def segment_function(array_in, roi, steps):
     data = array_in.to_ndarray(roi, fill_value=0)
+    if steps is None:
+        return data
     for step_name, step_args in steps.items():
         func = process_functions.get(step_name)
 
@@ -47,6 +53,8 @@ def segment_worker(tmpdir,config_yaml,current_step):
     step_dict = process_config.get(current_step, {})
     input_file, dataset = config.get_input_for_step(current_step)
 
+    save_result = step_dict.get('save_result', True)
+
     # input_file = config.data.input_container
     # dataset = config.data.in_dataset
     output_file = config.data.output_container
@@ -57,7 +65,8 @@ def segment_worker(tmpdir,config_yaml,current_step):
     context = config.data.context
 
     array_in = open_ds(input_file, dataset)
-    array_out = open_ds(output_file, out_dataset, mode="a")
+    if save_result:
+        array_out = open_ds(output_file, out_dataset, mode="a")
     # array_out = open_ds(output_file, config.data.output_group, mode="a")
 
     voxel_size = array_in.voxel_size
@@ -73,23 +82,31 @@ def segment_worker(tmpdir,config_yaml,current_step):
 
 
     save_edges = step_dict.get('params', {}).get('save_edges', False)
+    save_ids = step_dict.get('params', {}).get('save_ids', False)
     
     task_type = step_dict.get('params', {}).get('type', None)
+
+    steps = step_dict.get('steps', None)
 
     if task_type is None:
         raise ValueError(f"Task type is not defined in the config file. params: {step_dict}, all configs: {process_config}")
 
 
-    folder = os.path.join(tmpdir, "blocks")
-    if not os.path.exists(folder):
-        os.makedirs(folder)
+    block_folder = os.path.join(tmpdir, "blocks")
+    if not os.path.exists(block_folder):
+        os.makedirs(block_folder)
+    id_folder = os.path.join(tmpdir, "ids")
+    if not os.path.exists(id_folder):
+        os.makedirs(id_folder)
 
-    
 
     nodes_list = []
     edges_list = []
 
+    all_ids = set()
+
     if task_type == "segmentation":
+
 
         while True:
             with client.acquire_block() as block:
@@ -97,7 +114,8 @@ def segment_worker(tmpdir,config_yaml,current_step):
                     break
 
 
-                segmentation = segment_function(array_in, block.read_roi, step_dict['steps'])
+
+                segmentation = segment_function(array_in, block.read_roi, steps)
 
 
                 if save_edges:
@@ -105,6 +123,9 @@ def segment_worker(tmpdir,config_yaml,current_step):
                     id_bump = block.block_id[1] * num_voxels_in_block
                     segmentation += id_bump
                     segmentation[segmentation == id_bump] = 0
+                
+                if save_ids:
+                    all_ids.update(np.unique(segmentation))
 
 
                 # wrap segmentation into daisy array
@@ -115,7 +136,8 @@ def segment_worker(tmpdir,config_yaml,current_step):
                 
 
                 # store segmentation in out array
-                array_out[block.write_roi] = segmentation[block.write_roi]
+                if save_result:
+                    array_out[block.write_roi] = segmentation[block.write_roi]
 
                 if save_edges:
                     neighbor_roi = block.write_roi.grow(
@@ -175,20 +197,37 @@ def segment_worker(tmpdir,config_yaml,current_step):
             edges = np.concatenate(edges_list)
 
             np.savez_compressed(
-                os.path.join(folder, "block_%d.npz" % client.worker_id),
+                os.path.join(block_folder, "block_%d.npz" % client.worker_id),
                 nodes=nodes,
                 edges=edges,
             )
+        if save_ids:
+            # remove 0 from ids
+            if 0 in all_ids:
+                all_ids.remove(0)
+            all_ids = np.array(list(all_ids))
+            np.savez_compressed(
+                os.path.join(id_folder, "ids_%d.npz" % client.worker_id),
+                ids=all_ids,
+            )
 
     elif task_type == "relabel":
-        nodes, edges, components = load_elements(tmpdir)
+        use_ids = step_dict.get('params', {}).get('use_ids', False)
+        if use_ids:
+            old_ds, new_ids = load_ids(tmpdir)
+
+        else:
+            nodes, edges, components = load_elements(tmpdir)
         while True:
             with client.acquire_block() as block:
                 if block is None:
                     break
                 print(f"Segmenting in block {block}")
                 # mask_value(array_out, 2, block)
-                relabel_in_block(array_in, array_out, nodes, components, block)
+                if use_ids:
+                    relabel_in_block(array_in, array_out, old_ds, new_ids , block)
+                else:
+                    relabel_in_block(array_in, array_out, nodes, components, block)
 
     print("worker finished.")
 

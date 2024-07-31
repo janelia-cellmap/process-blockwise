@@ -20,6 +20,16 @@ import logging
 
 logger = logging.getLogger(__file__)
 
+def get_minimal_dtype(value):
+    dtypes = [
+        np.uint8, np.uint16, np.uint32, np.uint64,
+    ]
+    for dtype in dtypes:
+        if np.can_cast(value, dtype):
+            return dtype
+    
+    raise ValueError("Value is too large to fit in available dtypes.")
+
 def load_and_deserialize(npy_file):
     loaded_serialized_dict = np.load(npy_file, allow_pickle=True)
     return pickle.loads(loaded_serialized_dict)
@@ -38,9 +48,33 @@ def merge_sizes(folder_path):
     return dict(sizes)
 
 
-def load_npz(file):
+def load_ids(tmpdir):
+        a = np.load(os.path.join(tmpdir, "ids.npz"))
+        return a["old_ids"], a["new_ids"]
+
+def load_edges_npz(file):
     data = np.load(file)
     return data["nodes"], data["edges"]
+
+def load_ids_npz(file):
+    data = np.load(file)
+    return data["ids"]
+
+def read_merge_ids(tmpdir):
+    print("Reading cross block merges...")
+    block_files = glob(os.path.join(tmpdir, "ids_*.npz"))
+
+    result = set()
+
+    with ThreadPoolExecutor() as executor:
+        futures = [executor.submit(load_ids_npz, block_file) for block_file in block_files]
+
+        for future in tqdm(futures, total=len(futures)):
+            ids = future.result()
+            if len(ids) > 0:
+                result.update(ids)
+
+    return np.array(list(result))
 
 def read_cross_block_merges(tmpdir):
     print("Reading cross block merges...")
@@ -50,7 +84,7 @@ def read_cross_block_merges(tmpdir):
     edges_list = []
 
     with ThreadPoolExecutor() as executor:
-        futures = [executor.submit(load_npz, block_file) for block_file in block_files]
+        futures = [executor.submit(load_edges_npz, block_file) for block_file in block_files]
 
         for future in tqdm(futures, total=len(futures)):
             nodes, edges = future.result()
@@ -145,21 +179,36 @@ def segment_blockwise(config_yaml):
         out_dataset = os.path.join(config.data.output_group, current_step)
 
         overwrite = step_dict.get('override', False)
+        save_result = step_dict.get('save_result', True)
 
         if overwrite:
             logger.error(f"Overwriting dataset: {out_dataset}")
             import shutil
             shutil.rmtree(os.path.join(output_file, out_dataset))
 
+        use_ids = step_dict.get('params', {}).get('use_ids', False)
+        minimal_dtype = step_dict.get('params', {}).get('minimal_dtype', False)
 
-        array_out = prepare_ds(
-            output_file,
-            out_dataset,
-            total_roi,
-            voxel_size=voxel_size,
-            write_size=write_size,
-            dtype=np.uint64,
-        )
+        if minimal_dtype:
+            if not use_ids:
+                raise ValueError("Cannot use minimal dtype without using ids.")
+            _, new_ids = load_ids(tmpdir)
+            max_value = len(new_ids) +1
+            print(f"Max value: {max_value}")
+            current_dtype = get_minimal_dtype(max_value)
+            print(f"Using dtype: {current_dtype}")
+        else:
+            current_dtype = np.uint64
+
+        if save_result:
+            array_out = prepare_ds(
+                output_file,
+                out_dataset,
+                total_roi,
+                voxel_size=voxel_size,
+                write_size=write_size,
+                dtype=current_dtype,
+            )
 
         print("Starting segmentation...")
         print(f"total_roi: {total_roi.grow(context, context)}:")
@@ -221,6 +270,7 @@ def segment_blockwise(config_yaml):
         print("Finished segmentation. Relabeling...")
 
         save_edges =  step_dict.get('params', {}).get('save_edges', False)
+        save_ids =  step_dict.get('params', {}).get('save_ids', False)
         if save_edges:
 
             nodes, edges = read_cross_block_merges(os.path.join(tmpdir, "blocks"))
@@ -228,6 +278,12 @@ def segment_blockwise(config_yaml):
             components = find_components(nodes, edges)
 
             save_elements(tmpdir, nodes, edges, components)
+        if save_ids:
+            old_ids = read_merge_ids(os.path.join(tmpdir, "ids"))
+            new_ids = np.arange(1, len(old_ids)+1)
+            np.savez_compressed(os.path.join(tmpdir, "ids.npz"), old_ids=old_ids, new_ids=new_ids)
+
+
     
     # wandb.finish()
 

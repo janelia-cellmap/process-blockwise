@@ -151,9 +151,16 @@ class Config:
                 break
             step_before = current_step
 
+        if i > 0:
+            save_result = steps[step_before].get('save_result', True)
+            if not save_result:
+                i = i - 1
+
         if i == 0:
             input_file = self.data.input_container
             dataset = self.data.in_dataset
+        
+        
         else:
             input_file = self.data.output_container
             dataset = os.path.join(self.data.output_group, step_before)
