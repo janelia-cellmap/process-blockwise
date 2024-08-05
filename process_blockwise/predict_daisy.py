@@ -10,7 +10,6 @@ import numpy as np
 import subprocess
 import logging
 
-import sqlite3
 import os
 
 logger = logging.getLogger(__file__)
@@ -255,24 +254,10 @@ def predict(
                 dtype=np.float32,
                 num_channels=min(3, num_channels - i),
             )
-    sql_base_path = f"/groups/cellmap/cellmap/zouinkhim/ml_experiments_v2/leveldb/{name}/merged.sqlite"
-    conn = sqlite3.connect(sql_base_path,check_same_thread=False)
-    cursor = conn.cursor()
-
-    def check_function(b):
-        # logger.error(f"Checking block {b}")
-        if not b:
-            return False
-        block_id_str = str(b.block_id)
-        cursor.execute("SELECT 1 FROM processed_blocks WHERE block_id = ?", (block_id_str,))
-        if cursor.fetchone() is not None:
-            logger.error(f"Block {block_id_str} has already been processed")
-            True
-        return False
 
 
     task = daisy.Task(
-        "test_server_task",
+        f"predict_{name}",
         total_roi=total_read_roi,
         read_roi=read_roi,
         write_roi=write_roi,
@@ -292,7 +277,7 @@ def predict(
             mask_dataset,
             instance,
         ),
-        check_function=lambda b: check_function(b),
+        check_function=None,
         read_write_conflict=False,
         fit="overhang",
         num_workers=workers,

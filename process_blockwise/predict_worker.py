@@ -166,7 +166,7 @@ def start_worker(
             raw_input = np.expand_dims(raw_input, (0, 1))
             write_roi = block.write_roi.intersect(out_datasets[0].roi)
 
-            if out_datasets[1].to_ndarray(write_roi).any():
+            if out_datasets[0].to_ndarray(write_roi).any():
                 logger.error(f"Block {block.block_id} {block.write_roi} has already been processed")
                 # block has already been processed
                 continue

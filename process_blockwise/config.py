@@ -44,6 +44,9 @@ class Task:
                 os.makedirs(self.tmpdir)
         self.num_cpus = task_dict.get('num_cpus', 1)
         self.num_workers = task_dict.get('num_workers', 20)
+        self.billing = task_dict.get('billing', None)
+        if self.billing is None:
+            raise ConfigError("Billing account must be provided in 'task' section.")
 
     def __repr__(self):
         return (f"Task(task_name={self.task_name}, tmpdir={self.tmpdir}, "

@@ -160,6 +160,7 @@ def segment_blockwise(config_yaml):
 
     task_name = task.task_name
     tmpdir = os.path.join(task.tmpdir, task_name)
+    billing = task.billing
 
     if task.empty_tmpdir:
         if os.path.exists(tmpdir):
@@ -230,7 +231,7 @@ def segment_blockwise(config_yaml):
                     "bsub",
                     "-K",
                     "-P",
-                    "cellmap",
+                    billing,
                     "-J",
                     f"segment_worker_{task_id}_{worker_id}",
                     "-n",

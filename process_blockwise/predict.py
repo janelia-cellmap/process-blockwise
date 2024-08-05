@@ -1,4 +1,4 @@
-import click
+import argparse
 import logging
 from pathlib import Path
 import yaml
@@ -14,26 +14,15 @@ def is_string_int(s):
         return False
     
 
-@click.group()
-@click.option(
-    "--log-level",
-    type=click.Choice(
-        ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"], case_sensitive=False
-    ),
-    default="INFO",
-)
-def cli(log_level):
-    logging.basicConfig(level=getattr(logging, log_level.upper()))
-
-
-@cli.command()
-@click.option("-p", "--prediction", type=click.Path(exists=True, dir_okay=False))
 def predict(prediction,):
     predictions = yaml.safe_load(Path(prediction).open("r").read())
     runs_path = predictions["runs_path"]
     output_folder = predictions["output_folder"]
     input_pred = predictions["input"]
     workers = predictions["workers"]
+    billing = predictions.get("billing", None)
+    if billing is None:
+        raise ValueError("Billing must be set in the prediction yaml file")
     in_dataset = predictions["in_dataset"]
     if "roi" in predictions:
         roi = predictions["roi"]
@@ -47,7 +36,7 @@ def predict(prediction,):
 
         iteration = params["checkpoint"]
         output = params["output"]
-        dataset = params["dataset"]
+        dataset = run
         print("dataset:",dataset)
         if "output_file" in params:
             output_file = params["output_file"]
@@ -65,7 +54,7 @@ def predict(prediction,):
 
         command = ["bsub",
         "-P",
-        "cellmap",
+        billing,
         "-J",
         "pred_maaaaster",
         "-o",
@@ -95,11 +84,25 @@ def predict(prediction,):
         str(workers),
         "--bsub",
         "--billing",
-        "cellmap",
+        billing,
         ] + (["--roi", roi] if roi is not None else [])
         print("command: ",command)
         subprocess.run(command)
+        # sleep 1 min
+        import time
+        time.sleep(60)
         print("finished!")
 
+
+def main():
+    parser = argparse.ArgumentParser(description="Process blockwise with a given path.")
+    parser.add_argument('path', type=str, help='The path to process blockwise')
+    args = parser.parse_args()
+    
+    config_yaml = args.path
+    predict(config_yaml)
+
+
+
 if __name__ == "__main__":
-    cli()
+    main()

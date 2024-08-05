@@ -67,6 +67,7 @@ packages = ["process_blockwise"]
 
 [project.scripts]
 process_blockwise = "process_blockwise.segment_blockwise:main"
+predict_blockwise = "process_blockwise.predict:main"
 
 # https://github.com/charliermarsh/ruff
 [tool.ruff]
