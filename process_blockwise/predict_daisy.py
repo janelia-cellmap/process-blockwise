@@ -208,6 +208,8 @@ def predict(
 
     total_write_roi = raw.roi
     output_voxel_size = model.scale(raw.voxel_size)
+    print("input_voxel_size", raw.voxel_size)
+    print("output_voxel_size", output_voxel_size)
 
     eval_input_shape = model.eval_input_shape
 

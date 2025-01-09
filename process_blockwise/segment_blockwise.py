@@ -199,7 +199,8 @@ def segment_blockwise(config_yaml):
             current_dtype = get_minimal_dtype(max_value)
             print(f"Using dtype: {current_dtype}")
         else:
-            current_dtype = np.uint64
+            current_dtype = np.uint8
+            # current_dtype = np.uint64
 
         if save_result:
             array_out = prepare_ds(

@@ -16,11 +16,13 @@ def is_string_int(s):
 
 def predict(prediction,):
     predictions = yaml.safe_load(Path(prediction).open("r").read())
-    runs_path = predictions["runs_path"]
+    
     output_folder = predictions["output_folder"]
     input_pred = predictions["input"]
     workers = predictions["workers"]
     billing = predictions.get("billing", None)
+    instances = predictions.get("instances", None)
+    
     if billing is None:
         raise ValueError("Billing must be set in the prediction yaml file")
     in_dataset = predictions["in_dataset"]
@@ -44,6 +46,7 @@ def predict(prediction,):
             output_file = output_folder
 
         if iteration == "latest":
+            runs_path = predictions["runs_path"]
             iteration_path = os.path.join(runs_path,run,"checkpoints/iterations/")
             iterations = os.listdir(iteration_path)
             iteration = str(max([int(i) for i in iterations if is_string_int(i)]))
@@ -85,7 +88,7 @@ def predict(prediction,):
         "--bsub",
         "--billing",
         billing,
-        ] + (["--roi", roi] if roi is not None else [])
+        ] + (["--roi", roi] if roi is not None else []) + (["--instance",instances] if instances is not None else [])
         print("command: ",command)
         subprocess.run(command)
         # sleep 1 min

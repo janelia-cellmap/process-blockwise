@@ -25,6 +25,14 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
+    "dacapo-ml==0.3.2",
+    "funlib.persistence==0.4.0",
+    "numpy",
+    "PyYAML",
+    "daisy",
+    "scikit-image",
+    "funlib.segment @ git+https://github.com/funkelab/funlib.segment.git"
+
         # "dacapo-ml",
         ]
 

@@ -90,8 +90,11 @@ def start_worker(
         weights_store._load_best(run, criterion)
     except FileNotFoundError:
         iteration = int(criterion)
-        weights = weights_store.retrieve_weights(run, iteration)
-        model.load_state_dict(weights.model)
+        if iteration > 0:
+            weights = weights_store.retrieve_weights(run, iteration)
+            model.load_state_dict(weights.model)
+        else:
+            logger.error(f"No weights found for run {name} at iteration {iteration}")
 
     model = run.model.to(device)
 
@@ -146,16 +149,9 @@ def start_worker(
                 continue
 
             if not instance:
-                raw_input = (
-                    2.0
-                    * (
-                        raw_dataset.to_ndarray(
+                raw_input = raw_dataset.to_ndarray(
                             roi=block.read_roi, fill_value=shift + scale
-                        ).astype(np.float32)
-                        - shift
-                    )
-                    / scale
-                ) - 1.0
+                        ).astype(np.float32) / 255.0
             else:
                 raw_input = (
                     raw_dataset.to_ndarray(
