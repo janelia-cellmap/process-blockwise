@@ -1,7 +1,7 @@
 import dacapo
 from dacapo.store.create_store import create_config_store, create_weights_store
 from dacapo.experiments import Run
-
+from process_blockwise.load_py import load_safe_config
 import daisy
 from funlib.persistence import open_ds, Array
 
@@ -57,6 +57,7 @@ def cli(log_level):
     type=bool,
     default=False,
 )
+@click.option("--script", type=str, default=None)
 def start_worker(
     name,
     criterion,
@@ -70,6 +71,7 @@ def start_worker(
     mask_container,
     mask_dataset,
     instance,
+    script,
 ):
     shift = min_raw
     scale = max_raw - min_raw
@@ -79,32 +81,41 @@ def start_worker(
 
     client = daisy.Client()
 
-    config_store = create_config_store()
-    weights_store = create_weights_store()
+    if script is None:
 
-    run_config = config_store.retrieve_run_config(name)
-    run = Run(run_config)
+        config_store = create_config_store()
+        weights_store = create_weights_store()
 
-    model = run.model
-    try:
-        weights_store._load_best(run, criterion)
-    except FileNotFoundError:
-        iteration = int(criterion)
-        if iteration > 0:
-            weights = weights_store.retrieve_weights(run, iteration)
-            model.load_state_dict(weights.model)
-        else:
-            logger.error(f"No weights found for run {name} at iteration {iteration}")
+        run_config = config_store.retrieve_run_config(name)
+        run = Run(run_config)
 
-    model = run.model.to(device)
+        model = run.model
+        voxel_size = raw_dataset.voxel_size
+        output_voxel_size = model.scale(voxel_size)
+        try:
+            weights_store._load_best(run, criterion)
+        except FileNotFoundError:
+            iteration = int(criterion)
+            if iteration > 0:
+                weights = weights_store.retrieve_weights(run, iteration)
+                model.load_state_dict(weights.model)
+            else:
+                logger.error(f"No weights found for run {name} at iteration {iteration}")
+            
+    else:
+        config = load_safe_config(script)
+        model = config.model
+        output_voxel_size = config.output_voxel_size
+
+    model = model.to(device)
 
     raw_dataset = open_ds(in_container, in_dataset)
     mask_datasets = [
         open_ds(mc, md) for mc, md in zip(mask_container, mask_dataset)
     ]
 
-    voxel_size = raw_dataset.voxel_size
-    output_voxel_size = model.scale(voxel_size)
+    
+    
 
     if not instance:
         out_datasets = [

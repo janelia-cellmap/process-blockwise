@@ -22,6 +22,7 @@ def predict(prediction,):
     workers = predictions["workers"]
     billing = predictions.get("billing", None)
     instances = predictions.get("instances", None)
+    script_path  = predictions.get("script", None)
     
     if billing is None:
         raise ValueError("Billing must be set in the prediction yaml file")
@@ -88,12 +89,12 @@ def predict(prediction,):
         "--bsub",
         "--billing",
         billing,
-        ] + (["--roi", roi] if roi is not None else []) + (["--instance",instances] if instances is not None else [])
+        ] + (["--roi", roi] if roi is not None else []) + (["--instance",instances] if instances is not None else []) + (["--script", script_path] if script_path is not None else [])
         print("command: ",command)
         subprocess.run(command)
         # sleep 1 min
-        import time
-        time.sleep(60)
+        # import time
+        # time.sleep(60)
         print("finished!")
 
 

@@ -1,9 +1,8 @@
 from dacapo.store.create_store import create_config_store
 from dacapo.experiments import Run
-
+from process_blockwise.load_py import load_safe_config
 import daisy
 from funlib.persistence import open_ds, prepare_ds
-
 import click
 import numpy as np
 
@@ -40,6 +39,7 @@ def spawn_worker(
     mask_containers=list(),
     mask_datasets=list(),
     instance: bool = False,
+    script: str = None,
 ):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     predict_script = os.path.join(current_dir, 'predict_worker.py')
@@ -74,7 +74,7 @@ def spawn_worker(
                     "--instance",
                     f"{instance}",
                 ]
-                + mask_args
+                + mask_args +(["--script", script] if script is not None else [])
             )
         else:
             subprocess.run(
@@ -118,7 +118,7 @@ def spawn_worker(
                     "--instance",
                     f"{instance}",
                 ]
-                + mask_args
+                + mask_args+(["--script", script] if script is not None else [])
             )
 
     return run_worker
@@ -144,6 +144,7 @@ def spawn_worker(
 @click.option("--billing", default=None)
 @click.option("--min-raw", type=float, default=0)
 @click.option("--max-raw", type=float, default=255)
+
 @click.option(
     "-mc",
     "--mask-container",
@@ -159,6 +160,7 @@ def spawn_worker(
     default=list(),
 )
 @click.option("--instance", type=bool, default=False)
+@click.option("--script", type=str, default=None)
 def predict(
     name,
     criterion,
@@ -176,6 +178,7 @@ def predict(
     mask_container,
     mask_dataset,
     instance,
+    script,
 ):
     if not local:
         assert billing is not None
@@ -183,15 +186,6 @@ def predict(
 
     raw = open_ds(in_container, in_dataset)
 
-    config_store = create_config_store()
-    run_config = config_store.retrieve_run_config(name)
-    run = Run(run_config,load_starter_model = False)
-
-    model = run.model
-
-    # import torch
-    # device = torch.device("cuda")
-    # model = model.to(device)
     if roi is not None:
         parsed_start, parsed_end = zip(
             *[
@@ -207,21 +201,39 @@ def predict(
         parsed_roi = raw.roi
 
     total_write_roi = raw.roi
-    output_voxel_size = model.scale(raw.voxel_size)
-    print("input_voxel_size", raw.voxel_size)
-    print("output_voxel_size", output_voxel_size)
 
-    eval_input_shape = model.eval_input_shape
+
+
+    if script is None:
+        #  use dacapo
+        config_store = create_config_store()
+        run_config = config_store.retrieve_run_config(name)
+        run = Run(run_config,load_starter_model = False)
+
+        model = run.model
+
+        output_voxel_size = model.scale(raw.voxel_size)
+        print("input_voxel_size", raw.voxel_size)
+        print("output_voxel_size", output_voxel_size)
+
+        eval_input_shape = model.eval_input_shape
+        read_shape = eval_input_shape * raw.voxel_size
+        print(f"read_shape: {eval_input_shape} * {raw.voxel_size} -> {read_shape}")
+        write_shape = (
+            model.compute_output_shape(eval_input_shape)[1] * output_voxel_size
+        )
+        print(f"write_shape: {write_shape}")
+    else:
+        config = load_safe_config(script)
+        model = config.model
+        read_shape = config.read_shape
+        write_shape = config.write_shape
+        output_voxel_size = config.output_voxel_size
 
     # from funlib.geometry import Coordinate
     # eval_input_shape = Coordinate((288*2, 288, 288))
 
-    read_shape = eval_input_shape * raw.voxel_size
-    print(f"read_shape: {eval_input_shape} * {raw.voxel_size} -> {read_shape}")
-    write_shape = (
-        model.compute_output_shape(eval_input_shape)[1] * output_voxel_size
-    )
-    print(f"write_shape: {write_shape}")
+
     # return
     context = (read_shape - write_shape) / 2
     read_roi = daisy.Roi((0,) * read_shape.dims, read_shape)
@@ -278,6 +290,7 @@ def predict(
             mask_container,
             mask_dataset,
             instance,
+            script,
         ),
         check_function=None,
         read_write_conflict=False,

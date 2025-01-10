@@ -1,0 +1,358 @@
+Script contains unsafe elements:
+ - Disallowed function call detected: eval
+device: cuda
+model loaded Sequential(
+  (0): StandardUnet(
+    (unet_backbone): UNet(
+      (l_conv): ModuleList(
+        (0): ConvPass(
+          (conv_pass): Sequential(
+            (0): Conv3d(1, 16, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (1): ReLU()
+            (2): Conv3d(16, 16, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (3): ReLU()
+            (4): Conv3d(16, 16, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (5): ReLU()
+          )
+        )
+        (1): ConvPass(
+          (conv_pass): Sequential(
+            (0): Conv3d(16, 96, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (1): ReLU()
+            (2): Conv3d(96, 96, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (3): ReLU()
+            (4): Conv3d(96, 96, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (5): ReLU()
+          )
+        )
+        (2): ConvPass(
+          (conv_pass): Sequential(
+            (0): Conv3d(96, 576, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (1): ReLU()
+            (2): Conv3d(576, 576, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (3): ReLU()
+            (4): Conv3d(576, 576, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (5): ReLU()
+          )
+        )
+        (3): ConvPass(
+          (conv_pass): Sequential(
+            (0): Conv3d(576, 3456, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (1): ReLU()
+            (2): Conv3d(3456, 3456, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (3): ReLU()
+            (4): Conv3d(3456, 3456, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (5): ReLU()
+          )
+        )
+      )
+      (l_down): ModuleList(
+        (0-2): 3 x Downsample(
+          (down): MaxPool3d(kernel_size=(2, 2, 2), stride=(2, 2, 2), padding=0, dilation=1, ceil_mode=False)
+        )
+      )
+      (r_up): ModuleList(
+        (0): ModuleList(
+          (0-2): 3 x Upsample(
+            (up): Upsample(scale_factor=(2.0, 2.0, 2.0), mode='nearest')
+          )
+        )
+      )
+      (r_conv): ModuleList(
+        (0): ModuleList(
+          (0): ConvPass(
+            (conv_pass): Sequential(
+              (0): Conv3d(112, 16, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+              (1): ReLU()
+              (2): Conv3d(16, 16, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+              (3): ReLU()
+            )
+          )
+          (1): ConvPass(
+            (conv_pass): Sequential(
+              (0): Conv3d(672, 96, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+              (1): ReLU()
+              (2): Conv3d(96, 96, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+              (3): ReLU()
+            )
+          )
+          (2): ConvPass(
+            (conv_pass): Sequential(
+              (0): Conv3d(4032, 576, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+              (1): ReLU()
+              (2): Conv3d(576, 576, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+              (3): ReLU()
+            )
+          )
+        )
+      )
+    )
+    (final_conv): Conv3d(16, 8, kernel_size=(1, 1, 1), stride=(1, 1, 1), padding=valid)
+  )
+  (1): Sigmoid()
+)
+Script contains unsafe elements:
+ - Disallowed function call detected: eval
+device: cuda
+model loaded Sequential(
+  (0): StandardUnet(
+    (unet_backbone): UNet(
+      (l_conv): ModuleList(
+        (0): ConvPass(
+          (conv_pass): Sequential(
+            (0): Conv3d(1, 16, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (1): ReLU()
+            (2): Conv3d(16, 16, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (3): ReLU()
+            (4): Conv3d(16, 16, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (5): ReLU()
+          )
+        )
+        (1): ConvPass(
+          (conv_pass): Sequential(
+            (0): Conv3d(16, 96, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (1): ReLU()
+            (2): Conv3d(96, 96, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (3): ReLU()
+            (4): Conv3d(96, 96, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (5): ReLU()
+          )
+        )
+        (2): ConvPass(
+          (conv_pass): Sequential(
+            (0): Conv3d(96, 576, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (1): ReLU()
+            (2): Conv3d(576, 576, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (3): ReLU()
+            (4): Conv3d(576, 576, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (5): ReLU()
+          )
+        )
+        (3): ConvPass(
+          (conv_pass): Sequential(
+            (0): Conv3d(576, 3456, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (1): ReLU()
+            (2): Conv3d(3456, 3456, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (3): ReLU()
+            (4): Conv3d(3456, 3456, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+            (5): ReLU()
+          )
+        )
+      )
+      (l_down): ModuleList(
+        (0-2): 3 x Downsample(
+          (down): MaxPool3d(kernel_size=(2, 2, 2), stride=(2, 2, 2), padding=0, dilation=1, ceil_mode=False)
+        )
+      )
+      (r_up): ModuleList(
+        (0): ModuleList(
+          (0-2): 3 x Upsample(
+            (up): Upsample(scale_factor=(2.0, 2.0, 2.0), mode='nearest')
+          )
+        )
+      )
+      (r_conv): ModuleList(
+        (0): ModuleList(
+          (0): ConvPass(
+            (conv_pass): Sequential(
+              (0): Conv3d(112, 16, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+              (1): ReLU()
+              (2): Conv3d(16, 16, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+              (3): ReLU()
+            )
+          )
+          (1): ConvPass(
+            (conv_pass): Sequential(
+              (0): Conv3d(672, 96, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+              (1): ReLU()
+              (2): Conv3d(96, 96, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+              (3): ReLU()
+            )
+          )
+          (2): ConvPass(
+            (conv_pass): Sequential(
+              (0): Conv3d(4032, 576, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+              (1): ReLU()
+              (2): Conv3d(576, 576, kernel_size=(3, 3, 3), stride=(1, 1, 1))
+              (3): ReLU()
+            )
+          )
+        )
+      )
+    )
+    (final_conv): Conv3d(16, 8, kernel_size=(1, 1, 1), stride=(1, 1, 1), padding=valid)
+  )
+  (1): Sigmoid()
+)
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@h10u20>
+Subject: Job 142719054: <pred> in cluster <Janelia> Exited
+
+Job <pred> was submitted from host <e10u03> by user <zouinkhim> in cluster <Janelia> at Fri Jan 10 10:38:29 2025
+Job was executed on host(s) <10*h10u20>, in queue <gpu_tesla>, as user <zouinkhim> in cluster <Janelia> at Fri Jan 10 10:38:29 2025
+</groups/scicompsoft/home/zouinkhim> was used as the home directory.
+</groups/cellmap/cellmap/zouinkhim/process-blockwise/examples/using_model> was used as the working directory.
+Started at Fri Jan 10 10:38:29 2025
+Terminated at Fri Jan 10 10:42:34 2025
+Results reported at Fri Jan 10 10:42:34 2025
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+python /groups/cellmap/cellmap/zouinkhim/process-blockwise/process_blockwise/predict_worker.py start-worker -n 20250109_celeb_1 -c 438000 -cs 0:all_mem,1:organelle,2:mito,3:er,4:nucleus,5:pm,6:vs,7:ld -oc /nrs/cellmap/zouinkhim/predictions/cerebellum.zarr -od 20250109_celeb_1 -ic /nrs/cellmap/data/jrc_mus-cerebellum-1/jrc_mus-cerebellum-1.zarr -id recon-1/em/fibsem-uint8/s0 --min-raw 0.0 --max-raw 255.0 --instance False --script /groups/cellmap/cellmap/zouinkhim/process-blockwise/examples/using_model/model_spec.py
+------------------------------------------------------------
+
+Exited with exit code 1.
+
+Resource usage summary:
+
+    CPU time :                                   134.40 sec.
+    Max Memory :                                 3524 MB
+    Average Memory :                             857.16 MB
+    Total Requested Memory :                     409600.00 MB
+    Delta Memory :                               406076.00 MB
+    Max Swap :                                   -
+    Max Processes :                              3
+    Max Threads :                                46
+    Run time :                                   243 sec.
+    Turnaround time :                            245 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <prediction_logs/20250109_celeb_1.err> for stderr output of this job.
+
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@h10u20>
+Subject: Job 142719055: <pred> in cluster <Janelia> Exited
+
+Job <pred> was submitted from host <e10u03> by user <zouinkhim> in cluster <Janelia> at Fri Jan 10 10:38:29 2025
+Job was executed on host(s) <10*h10u20>, in queue <gpu_tesla>, as user <zouinkhim> in cluster <Janelia> at Fri Jan 10 10:38:29 2025
+</groups/scicompsoft/home/zouinkhim> was used as the home directory.
+</groups/cellmap/cellmap/zouinkhim/process-blockwise/examples/using_model> was used as the working directory.
+Started at Fri Jan 10 10:38:29 2025
+Terminated at Fri Jan 10 10:42:34 2025
+Results reported at Fri Jan 10 10:42:34 2025
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+python /groups/cellmap/cellmap/zouinkhim/process-blockwise/process_blockwise/predict_worker.py start-worker -n 20250109_celeb_1 -c 438000 -cs 0:all_mem,1:organelle,2:mito,3:er,4:nucleus,5:pm,6:vs,7:ld -oc /nrs/cellmap/zouinkhim/predictions/cerebellum.zarr -od 20250109_celeb_1 -ic /nrs/cellmap/data/jrc_mus-cerebellum-1/jrc_mus-cerebellum-1.zarr -id recon-1/em/fibsem-uint8/s0 --min-raw 0.0 --max-raw 255.0 --instance False --script /groups/cellmap/cellmap/zouinkhim/process-blockwise/examples/using_model/model_spec.py
+------------------------------------------------------------
+
+Exited with exit code 1.
+
+Resource usage summary:
+
+    CPU time :                                   130.63 sec.
+    Max Memory :                                 3523 MB
+    Average Memory :                             821.48 MB
+    Total Requested Memory :                     409600.00 MB
+    Delta Memory :                               406077.00 MB
+    Max Swap :                                   -
+    Max Processes :                              3
+    Max Threads :                                46
+    Run time :                                   243 sec.
+    Turnaround time :                            245 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <prediction_logs/20250109_celeb_1.err> for stderr output of this job.
+
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@h10u12>
+Subject: Job 142719053: <pred> in cluster <Janelia> Done
+
+Job <pred> was submitted from host <e10u03> by user <zouinkhim> in cluster <Janelia> at Fri Jan 10 10:38:29 2025
+Job was executed on host(s) <10*h10u12>, in queue <gpu_tesla>, as user <zouinkhim> in cluster <Janelia> at Fri Jan 10 10:38:29 2025
+</groups/scicompsoft/home/zouinkhim> was used as the home directory.
+</groups/cellmap/cellmap/zouinkhim/process-blockwise/examples/using_model> was used as the working directory.
+Started at Fri Jan 10 10:38:29 2025
+Terminated at Fri Jan 10 10:42:34 2025
+Results reported at Fri Jan 10 10:42:34 2025
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+python /groups/cellmap/cellmap/zouinkhim/process-blockwise/process_blockwise/predict_worker.py start-worker -n 20250109_celeb_1 -c 438000 -cs 0:all_mem,1:organelle,2:mito,3:er,4:nucleus,5:pm,6:vs,7:ld -oc /nrs/cellmap/zouinkhim/predictions/cerebellum.zarr -od 20250109_celeb_1 -ic /nrs/cellmap/data/jrc_mus-cerebellum-1/jrc_mus-cerebellum-1.zarr -id recon-1/em/fibsem-uint8/s0 --min-raw 0.0 --max-raw 255.0 --instance False --script /groups/cellmap/cellmap/zouinkhim/process-blockwise/examples/using_model/model_spec.py
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   121.84 sec.
+    Max Memory :                                 4488 MB
+    Average Memory :                             1061.89 MB
+    Total Requested Memory :                     409600.00 MB
+    Delta Memory :                               405112.00 MB
+    Max Swap :                                   -
+    Max Processes :                              3
+    Max Threads :                                46
+    Run time :                                   243 sec.
+    Turnaround time :                            245 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <prediction_logs/20250109_celeb_1.err> for stderr output of this job.
+
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@h10u12>
+Subject: Job 142719052: <pred> in cluster <Janelia> Done
+
+Job <pred> was submitted from host <e10u03> by user <zouinkhim> in cluster <Janelia> at Fri Jan 10 10:38:29 2025
+Job was executed on host(s) <10*h10u12>, in queue <gpu_tesla>, as user <zouinkhim> in cluster <Janelia> at Fri Jan 10 10:38:29 2025
+</groups/scicompsoft/home/zouinkhim> was used as the home directory.
+</groups/cellmap/cellmap/zouinkhim/process-blockwise/examples/using_model> was used as the working directory.
+Started at Fri Jan 10 10:38:29 2025
+Terminated at Fri Jan 10 10:42:34 2025
+Results reported at Fri Jan 10 10:42:34 2025
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+python /groups/cellmap/cellmap/zouinkhim/process-blockwise/process_blockwise/predict_worker.py start-worker -n 20250109_celeb_1 -c 438000 -cs 0:all_mem,1:organelle,2:mito,3:er,4:nucleus,5:pm,6:vs,7:ld -oc /nrs/cellmap/zouinkhim/predictions/cerebellum.zarr -od 20250109_celeb_1 -ic /nrs/cellmap/data/jrc_mus-cerebellum-1/jrc_mus-cerebellum-1.zarr -id recon-1/em/fibsem-uint8/s0 --min-raw 0.0 --max-raw 255.0 --instance False --script /groups/cellmap/cellmap/zouinkhim/process-blockwise/examples/using_model/model_spec.py
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   123.67 sec.
+    Max Memory :                                 4506 MB
+    Average Memory :                             1060.30 MB
+    Total Requested Memory :                     409600.00 MB
+    Delta Memory :                               405094.00 MB
+    Max Swap :                                   -
+    Max Processes :                              3
+    Max Threads :                                46
+    Run time :                                   243 sec.
+    Turnaround time :                            245 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <prediction_logs/20250109_celeb_1.err> for stderr output of this job.
+

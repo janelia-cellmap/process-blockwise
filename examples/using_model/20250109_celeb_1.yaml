@@ -1,0 +1,14 @@
+runs_path: "/nrs/cellmap/zouinkhim/cerebellum"
+
+output_folder : /nrs/cellmap/zouinkhim/predictions/cerebellum.zarr
+input : "/nrs/cellmap/data/jrc_mus-cerebellum-1/jrc_mus-cerebellum-1.zarr"
+in_dataset: "recon-1/em/fibsem-uint8/s0"
+roi: "[20000:30000,20000:30000,20000:30000]"
+workers: 6
+billing: "cellmap"
+script: "/groups/cellmap/cellmap/zouinkhim/process-blockwise/examples/using_model/model_spec.py"
+
+runs :
+  20250109_celeb_1:
+    output:  "0:all_mem,1:organelle,2:mito,3:er,4:nucleus,5:pm,6:vs,7:ld"
+    checkpoint: "438000"

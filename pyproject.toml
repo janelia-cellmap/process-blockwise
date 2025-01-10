@@ -25,15 +25,14 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-    "dacapo-ml==0.3.2",
+    "dacapo-ml @ git+https://github.com/janelia-cellmap/dacapo.git@cellmap-stable",
     "funlib.persistence==0.4.0",
     "numpy",
     "PyYAML",
     "daisy",
     "scikit-image",
-    "funlib.segment @ git+https://github.com/funkelab/funlib.segment.git"
-
-        # "dacapo-ml",
+    "funlib.segment @ git+https://github.com/funkelab/funlib.segment.git",
+    "funlib.show.neuroglancer @ git+https://github.com/funkelab/funlib.show.neuroglancer.git@0c609d2cbf09af976bda998fff17a0454e2782ee"
         ]
 
 # extras
